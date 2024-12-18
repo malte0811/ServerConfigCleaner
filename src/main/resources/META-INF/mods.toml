@@ -1,0 +1,23 @@
+# @file mods.toml
+# @spec TOML v0.5.0 (https://github.com/toml-lang/toml)
+#
+modLoader="javafml"
+loaderVersion="[1,)"
+license="MIT"
+
+[[mods]]
+modId = "serverconfigcleaner"
+version = "1.0"
+displayName = "ServerConfigCleaner"
+description = "Excludes server config values containing secrets from config syncing"
+authors = "malte0811"
+
+[[dependencies.serverconfigcleaner]]
+  modId="minecraft"
+  mandatory=true
+  versionRange="[1.20.2,)"
+  ordering="NONE"
+  side="BOTH"
+
+[[mixins]]
+  config="serverconfigcleaner.mixins.json"
