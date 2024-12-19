@@ -10,7 +10,7 @@ version = "$version_minecraft-1.0"
 group = "malte0811.$modid"
 archivesBaseName = 'ServerConfigCleaner'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 runs {
     configureEach {

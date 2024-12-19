@@ -3,19 +3,19 @@ package malte0811.serverconfigcleaner;
 import com.google.common.base.Preconditions;
 import malte0811.serverconfigcleaner.KeyChecker.ConfigKey;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.IExtensionPoint;
-import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ConfigTracker;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.config.ModConfigs;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.loading.FMLLoader;
-import net.neoforged.neoforge.network.NetworkConstants;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Mod(ModMain.MODID)
@@ -23,16 +23,11 @@ public class ModMain {
     public static final Logger LOGGER = LoggerFactory.getLogger("ServerConfigCleaner");
     public static final String MODID = "serverconfigcleaner";
 
-    public ModMain(IEventBus modBus) {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CleanerConfig.CONFIG_SPEC);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ABISTConfig.CONFIG_SPEC);
+    public ModMain(IEventBus modBus, ModContainer container) {
+        container.registerConfig(ModConfig.Type.COMMON, CleanerConfig.CONFIG_SPEC);
+        container.registerConfig(ModConfig.Type.SERVER, ABISTConfig.CONFIG_SPEC);
         modBus.addListener(ModConfigEvent.Reloading.class, this::onConfigChanged);
         modBus.addListener(ModConfigEvent.Loading.class, this::onConfigChanged);
-
-        ModLoadingContext.get().registerExtensionPoint(
-                IExtensionPoint.DisplayTest.class,
-                () -> new IExtensionPoint.DisplayTest(() -> NetworkConstants.IGNORESERVERONLY, (s, b) -> true)
-        );
     }
 
     private void onConfigChanged(ModConfigEvent ev) {
@@ -60,7 +55,12 @@ public class ModMain {
         MutableBoolean foundOwn = new MutableBoolean(false);
         for (ModConfig serverConfig : getServerConfigs()) {
             String modId = serverConfig.getModId();
-            ConfigIterator.forEachConfigKey(serverConfig.getSpec(), entryKey -> {
+            var rawSpec = serverConfig.getSpec();
+            if (!(rawSpec instanceof ModConfigSpec spec)) {
+                LOGGER.error("Unable to check server config for {}, unknown spec type", serverConfig.getModId());
+                continue;
+            }
+            ConfigIterator.forEachConfigKey(spec.getSpec(), entryKey -> {
                 ConfigKey key = new ConfigKey(modId, entryKey);
                 boolean excludedFromSync = checker.markedExcludedFromSync(key);
                 boolean falsePositive = checker.markedFalsePositive(key);
@@ -92,6 +92,6 @@ public class ModMain {
     }
 
     public static Set<ModConfig> getServerConfigs() {
-        return ConfigTracker.INSTANCE.configSets().get(ModConfig.Type.SERVER);
+        return ModConfigs.getConfigSet(ModConfig.Type.SERVER);
     }
 }

@@ -5,6 +5,7 @@ import com.electronwill.nightconfig.toml.TomlParser;
 import com.electronwill.nightconfig.toml.TomlWriter;
 import malte0811.serverconfigcleaner.KeyChecker.ConfigKey;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.ModConfigSpec.ValueSpec;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
@@ -74,13 +75,22 @@ public class SyncCleaner {
             ConfigKey key = new ConfigKey(modConfig.getModId(), entryKey);
             if (checker.markedExcludedFromSync(key)) {
                 // Reset to the default value, since that should not contain any secrets
-                Object defaultValue = modConfig.getSpec().get(entryKey);
-                if (defaultValue instanceof ValueSpec) {
-                    // This should always be the case, but checking first does not hurt
-                    defaultValue = ((ValueSpec) defaultValue).getDefault();
+                if (modConfig.getSpec() instanceof ModConfigSpec spec) {
+                    Object defaultValue = spec.getSpec().get(entryKey);
+                    if (defaultValue instanceof ValueSpec) {
+                        // This should always be the case, but checking first does not hurt
+                        defaultValue = ((ValueSpec) defaultValue).getDefault();
+                    }
+                    sanitizedConfig.set(entryKey, defaultValue);
+                    cleanedAny.setTrue();
+                } else {
+                    LOGGER.error(
+                            "Unexpected spec type {} for {}, unable to clean",
+                            modConfig.getSpec().getClass(),
+                            fileName
+                    );
+                    throw new RuntimeException("Unexpected spec type");
                 }
-                sanitizedConfig.set(entryKey, defaultValue);
-                cleanedAny.setTrue();
             }
         });
         if (cleanedAny.isFalse()) {
@@ -93,7 +103,7 @@ public class SyncCleaner {
         // Just in case there is a secret in some comment. We cannot just use sanitizedConfig.clearComments() since that
         // will cause a warning on the client due to mismatched comments.
         ConfigIterator.forEachConfigKey(sanitizedConfig, entryKey -> {
-            var specValue = modConfig.getSpec().get(entryKey);
+            var specValue = ((ModConfigSpec)modConfig.getSpec()).getSpec().get(entryKey);
             if (specValue instanceof ValueSpec) {
                 sanitizedConfig.setComment(entryKey, ((ValueSpec)specValue).getComment());
             }
