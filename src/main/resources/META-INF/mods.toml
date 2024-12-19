@@ -15,7 +15,7 @@ authors = "malte0811"
 [[dependencies.serverconfigcleaner]]
   modId="minecraft"
   mandatory=true
-  versionRange="[1.20.2,)"
+  versionRange="[1.17.1,1.20.2)"
   ordering="NONE"
   side="BOTH"
 

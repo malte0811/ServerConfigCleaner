@@ -2,36 +2,37 @@ package malte0811.serverconfigcleaner;
 
 import com.google.common.base.Preconditions;
 import malte0811.serverconfigcleaner.KeyChecker.ConfigKey;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.IExtensionPoint;
-import net.neoforged.fml.ModLoadingContext;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ConfigTracker;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.config.ModConfigEvent;
-import net.neoforged.fml.loading.FMLLoader;
-import net.neoforged.neoforge.network.NetworkConstants;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.IExtensionPoint;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ConfigTracker;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLLoader;
+import net.minecraftforge.fmllegacy.network.FMLNetworkConstants;
 import org.apache.commons.lang3.mutable.MutableBoolean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Mod(ModMain.MODID)
 public class ModMain {
-    public static final Logger LOGGER = LoggerFactory.getLogger("ServerConfigCleaner");
+    public static final Logger LOGGER = LogManager.getLogger("ServerConfigCleaner");
     public static final String MODID = "serverconfigcleaner";
 
-    public ModMain(IEventBus modBus) {
+    public ModMain() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CleanerConfig.CONFIG_SPEC);
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ABISTConfig.CONFIG_SPEC);
-        modBus.addListener(ModConfigEvent.Reloading.class, this::onConfigChanged);
-        modBus.addListener(ModConfigEvent.Loading.class, this::onConfigChanged);
+        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modBus.addListener(this::onConfigChanged);
 
         ModLoadingContext.get().registerExtensionPoint(
                 IExtensionPoint.DisplayTest.class,
-                () -> new IExtensionPoint.DisplayTest(() -> NetworkConstants.IGNORESERVERONLY, (s, b) -> true)
+                () -> new IExtensionPoint.DisplayTest(() -> FMLNetworkConstants.IGNORESERVERONLY, (s, b) -> true)
         );
     }
 

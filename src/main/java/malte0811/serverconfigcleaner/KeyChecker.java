@@ -2,8 +2,8 @@ package malte0811.serverconfigcleaner;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import net.neoforged.fml.loading.FMLLoader;
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.loading.FMLLoader;
 
 import java.util.*;
 
@@ -98,7 +98,7 @@ public class KeyChecker {
             return false;
         }
 
-        public static ConfigKeySet buildSetFromConfig(ModConfigSpec.ConfigValue<List<? extends String>> value) {
+        public static ConfigKeySet buildSetFromConfig(ForgeConfigSpec.ConfigValue<List<? extends String>> value) {
             Set<ConfigKey> exactEntries = new HashSet<>();
             Map<String, List<String>> prefixes = new HashMap<>();
             for (String element : value.get()) {

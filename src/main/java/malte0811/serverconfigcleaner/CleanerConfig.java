@@ -1,12 +1,12 @@
 package malte0811.serverconfigcleaner;
 
 import com.google.common.collect.ImmutableList;
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.List;
 
 public class CleanerConfig {
-    public static final ModConfigSpec CONFIG_SPEC;
+    public static final ForgeConfigSpec CONFIG_SPEC;
 
     private static final List<String> DEFAULT_FALSE_POSITIVES = ImmutableList.of(
             "computercraft:http.proxy.host",
@@ -21,32 +21,32 @@ public class CleanerConfig {
         "host", "username", "password", "secret", "token", "apikey", "webhook", "jdbc", "sql", "redis", "mongodb"
     );
 
-    public static final ModConfigSpec.ConfigValue<List<? extends String>> BAD_CONFIG_PATTERNS;
-    public static final ModConfigSpec.ConfigValue<List<? extends String>> TRUE_PROBLEMATIC_CONFIGS;
-    public static final ModConfigSpec.ConfigValue<List<? extends String>> FALSE_POSITIVES;
-    public static final ModConfigSpec.ConfigValue<List<? extends Integer>> PROBLEMATIC_HASHES;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> BAD_CONFIG_PATTERNS;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> TRUE_PROBLEMATIC_CONFIGS;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> FALSE_POSITIVES;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> PROBLEMATIC_HASHES;
 
     static
     {
-        ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
+        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
         BAD_CONFIG_PATTERNS = builder
                 .comment("Patterns used to determine suspicious config keys. Capitalization is ignored.")
                 .defineList("badConfigPatterns", DEFAULT_SUSPICIOUS_PATTERNS, obj -> true);
         TRUE_PROBLEMATIC_CONFIGS = builder
                 .comment("Options to exclude from config syncing", "Format: modid:category.configKey")
-                .defineListAllowEmpty("doNotSync", ImmutableList.of(), obj -> true);
+                .defineListAllowEmpty(ImmutableList.of("doNotSync"), ImmutableList::of, obj -> true);
         FALSE_POSITIVES = builder
                 .comment(
                         "Options that are detected by the badConfigPatterns, but should still be synced",
                         "Format: modid:category.configKey; * allowed at the end of an entry"
                 )
-                .defineListAllowEmpty("falsePositives", DEFAULT_FALSE_POSITIVES, obj -> true);
+                .defineListAllowEmpty(ImmutableList.of("falsePositives"), () -> DEFAULT_FALSE_POSITIVES, obj -> true);
         PROBLEMATIC_HASHES = builder
                 .comment(
                         "A somewhat obfuscated list of known options containing secrets.",
                         "Ignore unless you know what you are doing."
                 )
-                .defineListAllowEmpty("doNotSyncHashes", KNOWN_PROBLEMATIC_HASHES, obj -> true);
+                .defineListAllowEmpty(ImmutableList.of("doNotSyncHashes"), () -> KNOWN_PROBLEMATIC_HASHES, obj -> true);
 
         CONFIG_SPEC = builder.build();
     }

@@ -1,10 +1,19 @@
-plugins {
-    id 'java-library'
-    id 'eclipse'
-    id 'idea'
-    id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version "$version_neogradle"
+buildscript {
+    repositories {
+        maven { url 'https://maven.minecraftforge.net' }
+        maven {url 'https://plugins.gradle.org/m2/'}
+        mavenCentral()
+        maven {url 'https://repo.spongepowered.org/repository/maven-public/'}
+        maven {url 'https://maven.parchmentmc.org'}
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '6.0.+', changing: true
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+    }
 }
+apply plugin: 'net.minecraftforge.gradle'
+// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+apply plugin: 'eclipse'
 
 version = "$version_minecraft-1.0"
 group = "malte0811.$modid"
@@ -12,28 +21,68 @@ archivesBaseName = 'ServerConfigCleaner'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
-runs {
-    configureEach {
-        workingDirectory project.file('run')
-        systemProperty 'forge.logging.console.level', 'debug'
-        modSource sourceSets.main
-    }
-    client
+minecraft {
+    mappings channel: 'official', version: version_minecraft
 
-    server {
-        arguments.add '-nogui'
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+            arg "-mixin.config="+modid+".mixins.json"
+            mods {
+                serverconfigcleaner {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', ''
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
+            // Disable GUI by default, the IDE console can be used to enter commands
+            arg '-nogui'
+            arg "-mixin.config="+modid+".mixins.json"
+
+            mods {
+                serverconfigcleaner {
+                    source sourceSets.main
+                }
+            }
+        }
     }
 }
 
 dependencies {
-    implementation "net.neoforged:neoforge:${version_neoforge}"
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+    minecraft "net.minecraftforge:forge:$version_minecraft-$version_forge"
+    annotationProcessor 'org.spongepowered:mixin:0.8.7:processor'
 }
 
 def customGradle = rootProject.file('custom.gradle');
 if (customGradle.exists()) {
     apply from: customGradle;
+}
+
+// Prevent Mixin annotation processor from getting into IDEA's annotation processor settings
+// Copied from Botania
+if (System.getProperty("idea.sync.active") == "true") {
+    afterEvaluate {
+        tasks.withType(JavaCompile).all {
+            it.options.annotationProcessorPath = files()
+        }
+    }
 }
