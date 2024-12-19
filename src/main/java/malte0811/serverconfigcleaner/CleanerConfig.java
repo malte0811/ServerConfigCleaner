@@ -30,7 +30,7 @@ public class CleanerConfig {
     {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
         BAD_CONFIG_PATTERNS = builder
-                .comment("Patterns used to determine \"suspicious\" config keys. Capitalization is ignored.")
+                .comment("Patterns used to determine suspicious config keys. Capitalization is ignored.")
                 .defineList("badConfigPatterns", DEFAULT_SUSPICIOUS_PATTERNS, obj -> true);
         TRUE_PROBLEMATIC_CONFIGS = builder
                 .comment("Options to exclude from config syncing", "Format: modid:category.configKey")
@@ -43,7 +43,7 @@ public class CleanerConfig {
                 .defineListAllowEmpty("falsePositives", DEFAULT_FALSE_POSITIVES, obj -> true);
         PROBLEMATIC_HASHES = builder
                 .comment(
-                        "An \"obfuscated\" list of known options containing secrets.",
+                        "A somewhat obfuscated list of known options containing secrets.",
                         "Ignore unless you know what you are doing."
                 )
                 .defineListAllowEmpty("doNotSyncHashes", KNOWN_PROBLEMATIC_HASHES, obj -> true);
