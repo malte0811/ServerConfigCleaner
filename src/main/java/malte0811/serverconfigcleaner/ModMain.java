@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import malte0811.serverconfigcleaner.KeyChecker.ConfigKey;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.IExtensionPoint;
+import net.minecraftforge.fml.IExtensionPoint.DisplayTest;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ConfigTracker;
@@ -11,7 +12,6 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLLoader;
-import net.minecraftforge.fmllegacy.network.FMLNetworkConstants;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,8 +31,8 @@ public class ModMain {
         modBus.addListener(this::onConfigChanged);
 
         ModLoadingContext.get().registerExtensionPoint(
-                IExtensionPoint.DisplayTest.class,
-                () -> new IExtensionPoint.DisplayTest(() -> FMLNetworkConstants.IGNORESERVERONLY, (s, b) -> true)
+                DisplayTest.class,
+                () -> new DisplayTest(() -> DisplayTest.IGNORESERVERONLY, (s, b) -> true)
         );
     }
 

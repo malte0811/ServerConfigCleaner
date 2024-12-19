@@ -5,16 +5,14 @@ import com.electronwill.nightconfig.toml.TomlParser;
 import com.electronwill.nightconfig.toml.TomlWriter;
 import malte0811.serverconfigcleaner.KeyChecker.ConfigKey;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
+import net.minecraftforge.network.packets.ConfigData;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collector;
-import java.util.stream.Stream;
 
 import static malte0811.serverconfigcleaner.ModMain.LOGGER;
 
@@ -24,32 +22,19 @@ public class SyncCleaner {
     private final KeyChecker checker = new KeyChecker();
     private final Map<String, ModConfig> configsByFile = collectServerConfigsByFile();
 
-    public static <T, A, R>
-    Object cleanFromMixin(Stream<T> instance, Collector<? super T, A, R> arCollector) {
-        try {
-            Map<String, byte[]> oldMap = (Map<String, byte[]>) instance.collect(arCollector);
-            return new SyncCleaner().cleanAll(oldMap);
-        } catch (Exception x) {
-            LOGGER.error("Caught exception while cleaning configs", x);
-            throw new RuntimeException(x);
-        }
+    public static ConfigData redirectNewConfigData(String name, byte[] data) {
+        return new ConfigData(name, new SyncCleaner().clean(name, data));
     }
 
-    private Map<String, byte[]> cleanAll(Map<String, byte[]> oldMap) {
-        Map<String, byte[]> newMap = new HashMap<>();
+    private byte[] clean(String name, byte[] data) {
+        CommentedConfig sanitizedConfig = parser.parse(new ByteArrayInputStream(data));
 
-        for (Map.Entry<String, byte[]> fileAndBytes : oldMap.entrySet()) {
-            String fileName = fileAndBytes.getKey();
-            CommentedConfig sanitizedConfig = parser.parse(new ByteArrayInputStream(fileAndBytes.getValue()));
-
-            if (cleanSingleConfig(fileName, sanitizedConfig)) {
-                String newTOML = writer.writeToString(sanitizedConfig);
-                newMap.put(fileName, newTOML.getBytes(StandardCharsets.UTF_8));
-            } else {
-                newMap.put(fileName, fileAndBytes.getValue());
-            }
+        if (cleanSingleConfig(name, sanitizedConfig)) {
+            String newTOML = writer.writeToString(sanitizedConfig);
+            return newTOML.getBytes(StandardCharsets.UTF_8);
+        } else {
+            return data;
         }
-        return newMap;
     }
 
     /**
