@@ -27,7 +27,7 @@ public class CleanerConfig {
         FALSE_POSITIVES = builder
                 .comment(
                         "Options that are detected by the badConfigPatterns, but should still be synced",
-                        "Format: modid:category.configKey"
+                        "Format: modid:category.configKey; * allowed at the end of an entry"
                 )
                 .defineListAllowEmpty("falsePositives", ImmutableList.of(), obj -> true);
         PROBLEMATIC_HASHES = builder

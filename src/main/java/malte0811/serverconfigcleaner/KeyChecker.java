@@ -1,6 +1,7 @@
 package malte0811.serverconfigcleaner;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
@@ -8,15 +9,15 @@ import java.util.*;
 
 public class KeyChecker {
     private final List<String> problematicKeyParts;
-    private final Set<ConfigKey> nonSyncedKeys;
+    private final ConfigKeySet nonSyncedKeys;
     private final Set<Integer> nonSyncedHashes;
-    private final Set<ConfigKey> falsePositives;
+    private final ConfigKeySet falsePositives;
 
     public KeyChecker() {
         problematicKeyParts = new ArrayList<>(CleanerConfig.BAD_CONFIG_PATTERNS.get());
-        nonSyncedKeys = ConfigKey.buildSetFromConfig(CleanerConfig.TRUE_PROBLEMATIC_CONFIGS);
+        nonSyncedKeys = ConfigKeySet.buildSetFromConfig(CleanerConfig.TRUE_PROBLEMATIC_CONFIGS);
         nonSyncedHashes = new HashSet<>(CleanerConfig.PROBLEMATIC_HASHES.get());
-        falsePositives = ConfigKey.buildSetFromConfig(CleanerConfig.FALSE_POSITIVES);
+        falsePositives = ConfigKeySet.buildSetFromConfig(CleanerConfig.FALSE_POSITIVES);
     }
 
     public boolean mayBeProblematic(String key) {
@@ -43,16 +44,8 @@ public class KeyChecker {
 
         public static ConfigKey fromOwnConfig(String value) {
             int separator = value.indexOf(':');
-            Preconditions.checkArgument(separator > 0, "Invalid key " + value);
+            Preconditions.checkArgument(separator > 0, "Invalid key " + value + ", expected : separator");
             return new ConfigKey(value.substring(0, separator), value.substring(separator + 1));
-        }
-
-        public static Set<ConfigKey> buildSetFromConfig(ModConfigSpec.ConfigValue<List<? extends String>> value) {
-            Set<ConfigKey> result = new HashSet<>();
-            for (String element : value.get()) {
-                result.add(fromOwnConfig(element));
-            }
-            return result;
         }
 
         public ConfigKey(String modid, String key) {
@@ -81,5 +74,46 @@ public class KeyChecker {
                 return modid + ":" + key + " (" + hashCode() + ")";
             }
         }
+    }
+
+    private static class ConfigKeySet {
+        private final Set<ConfigKey> exactEntries;
+        private final Map<String, List<String>> prefixes;
+
+        private ConfigKeySet(Set<ConfigKey> exactEntries, Map<String, List<String>> prefixes) {
+            this.exactEntries = exactEntries;
+            this.prefixes = prefixes;
+        }
+
+        public boolean contains(ConfigKey key) {
+            if (exactEntries.contains(key)) {
+                return true;
+            }
+            List<String> falsePositivePrefixes = prefixes.getOrDefault(key.modid, ImmutableList.of());
+            for (String prefix : falsePositivePrefixes) {
+                if (key.key.startsWith(prefix)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static ConfigKeySet buildSetFromConfig(ModConfigSpec.ConfigValue<List<? extends String>> value) {
+            Set<ConfigKey> exactEntries = new HashSet<>();
+            Map<String, List<String>> prefixes = new HashMap<>();
+            for (String element : value.get()) {
+                ConfigKey key = ConfigKey.fromOwnConfig(element);
+                if (key.key.contains("*")) {
+                    Preconditions.checkArgument(key.key.endsWith("*"), key);
+                    String cleanedKey = key.key.substring(0, key.key.length() - 1);
+                    Preconditions.checkArgument(!cleanedKey.contains("*"), key);
+                    prefixes.computeIfAbsent(key.modid, $ -> new ArrayList<>()).add(cleanedKey);
+                } else {
+                    exactEntries.add(key);
+                }
+            }
+            return new ConfigKeySet(exactEntries, prefixes);
+        }
+
     }
 }
