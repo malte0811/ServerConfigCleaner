@@ -19,7 +19,7 @@ version = "$version_minecraft-1.0"
 group = "malte0811.$modid"
 archivesBaseName = 'ServerConfigCleaner'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 minecraft {
     mappings channel: 'official', version: version_minecraft
