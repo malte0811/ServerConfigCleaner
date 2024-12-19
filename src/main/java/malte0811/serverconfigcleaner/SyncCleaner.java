@@ -94,7 +94,7 @@ public class SyncCleaner {
         // Just in case there is a secret in some comment. We cannot just use sanitizedConfig.clearComments() since that
         // will cause a warning on the client due to mismatched comments.
         ConfigIterator.forEachConfigKey(sanitizedConfig, entryKey -> {
-            var specValue = modConfig.getSpec().get(entryKey);
+            Object specValue = modConfig.getSpec().get(entryKey);
             if (specValue instanceof ValueSpec) {
                 sanitizedConfig.setComment(entryKey, ((ValueSpec)specValue).getComment());
             }

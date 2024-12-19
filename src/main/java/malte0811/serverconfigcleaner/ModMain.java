@@ -1,22 +1,26 @@
 package malte0811.serverconfigcleaner;
 
+import com.electronwill.nightconfig.core.Config;
 import com.google.common.base.Preconditions;
 import malte0811.serverconfigcleaner.KeyChecker.ConfigKey;
+import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.IExtensionPoint;
+import net.minecraftforge.fml.ExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.config.ConfigTracker;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLLoader;
-import net.minecraftforge.fmllegacy.network.FMLNetworkConstants;
+import net.minecraftforge.fml.network.FMLNetworkConstants;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Mod(ModMain.MODID)
@@ -31,22 +35,25 @@ public class ModMain {
         modBus.addListener(this::onConfigChanged);
 
         ModLoadingContext.get().registerExtensionPoint(
-                IExtensionPoint.DisplayTest.class,
-                () -> new IExtensionPoint.DisplayTest(() -> FMLNetworkConstants.IGNORESERVERONLY, (s, b) -> true)
+                ExtensionPoint.DISPLAYTEST,
+                () -> Pair.of(() -> FMLNetworkConstants.IGNORESERVERONLY, (s, b) -> true)
         );
     }
 
-    private void onConfigChanged(ModConfigEvent ev) {
+    private void onConfigChanged(ModConfig.ModConfigEvent ev) {
         if (ev.getConfig().getSpec() == CleanerConfig.CONFIG_SPEC) {
             checkAllCategorized();
-        } else if (!FMLLoader.isProduction()) {
+        } else if (!isProduction()) {
             Preconditions.checkState(ev.getConfig().getSpec() == ABISTConfig.CONFIG_SPEC);
             // Automatic Built In Self Test: On the server, always set the test config value to a "secret". On the
             // client, check that we never see that value when connecting to a dedicated server.
             if (FMLLoader.getDist().isClient()) {
                 ModClient.checkABIST();
             } else {
-                ABISTConfig.ABIST_TOKEN.set(ABISTConfig.FAKE_SECRET);
+                Config childConfig = ObfuscationReflectionHelper.getPrivateValue(
+                        ForgeConfigSpec.class, ABISTConfig.CONFIG_SPEC, "childConfig"
+                );
+                childConfig.set(ABISTConfig.ABIST_TOKEN.getPath(), ABISTConfig.FAKE_SECRET);
             }
         }
     }
@@ -93,6 +100,14 @@ public class ModMain {
     }
 
     public static Set<ModConfig> getServerConfigs() {
-        return ConfigTracker.INSTANCE.configSets().get(ModConfig.Type.SERVER);
+        Map<ModConfig.Type, Set<ModConfig>> configSets = ObfuscationReflectionHelper.getPrivateValue(
+                ConfigTracker.class, ConfigTracker.INSTANCE, "configSets"
+        );
+        return configSets.get(ModConfig.Type.SERVER);
+    }
+
+    public static boolean isProduction() {
+        // TODO is this correct?
+        return FMLLoader.getNaming().equals("srg");
     }
 }

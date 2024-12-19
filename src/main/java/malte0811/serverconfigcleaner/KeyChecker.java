@@ -68,7 +68,7 @@ public class KeyChecker {
 
         @Override
         public String toString() {
-            if (FMLLoader.isProduction()) {
+            if (ModMain.isProduction()) {
                 return "\"" + modid + ":" + key + "\"";
             } else {
                 return modid + ":" + key + " (" + hashCode() + ")";

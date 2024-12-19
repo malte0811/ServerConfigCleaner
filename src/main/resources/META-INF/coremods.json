@@ -1,0 +1,3 @@
+{
+  "Clean server config before sync": "asm/clean_sync.js"
+}

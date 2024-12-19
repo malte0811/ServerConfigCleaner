@@ -6,7 +6,7 @@ import static malte0811.serverconfigcleaner.ModMain.LOGGER;
 
 public class ModClient {
     public static void checkABIST() {
-        if (Minecraft.getInstance().hasSingleplayerServer()) { return; }
+        if (Minecraft.getInstance().isSingleplayer()) { return; }
 
         String value = ABISTConfig.ABIST_TOKEN.get();
         if (value.equals(ABISTConfig.FAKE_SECRET)) {

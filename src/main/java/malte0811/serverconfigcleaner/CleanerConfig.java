@@ -34,19 +34,19 @@ public class CleanerConfig {
                 .defineList("badConfigPatterns", DEFAULT_SUSPICIOUS_PATTERNS, obj -> true);
         TRUE_PROBLEMATIC_CONFIGS = builder
                 .comment("Options to exclude from config syncing", "Format: modid:category.configKey")
-                .defineListAllowEmpty(ImmutableList.of("doNotSync"), ImmutableList::of, obj -> true);
+                .defineList(ImmutableList.of("doNotSync"), ImmutableList::of, obj -> true);
         FALSE_POSITIVES = builder
                 .comment(
                         "Options that are detected by the badConfigPatterns, but should still be synced",
                         "Format: modid:category.configKey; * allowed at the end of an entry"
                 )
-                .defineListAllowEmpty(ImmutableList.of("falsePositives"), () -> DEFAULT_FALSE_POSITIVES, obj -> true);
+                .defineList(ImmutableList.of("falsePositives"), () -> DEFAULT_FALSE_POSITIVES, obj -> true);
         PROBLEMATIC_HASHES = builder
                 .comment(
                         "A somewhat obfuscated list of known options containing secrets.",
                         "Ignore unless you know what you are doing."
                 )
-                .defineListAllowEmpty(ImmutableList.of("doNotSyncHashes"), () -> KNOWN_PROBLEMATIC_HASHES, obj -> true);
+                .defineList(ImmutableList.of("doNotSyncHashes"), () -> KNOWN_PROBLEMATIC_HASHES, obj -> true);
 
         CONFIG_SPEC = builder.build();
     }

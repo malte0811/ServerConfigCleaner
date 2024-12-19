@@ -14,8 +14,8 @@ public class ConfigIterator {
     ) {
         for (UnmodifiableConfig.Entry entry : config.entrySet()) {
             String entryKey = keyPrefix + entry.getKey();
-            if (entry.getRawValue() instanceof UnmodifiableConfig innerConfig) {
-                forEachConfigKeyRecursive(innerConfig, keyConsumer, entryKey + ".");
+            if (entry.getRawValue() instanceof UnmodifiableConfig) {
+                forEachConfigKeyRecursive((UnmodifiableConfig) entry.getRawValue(), keyConsumer, entryKey + ".");
             } else {
                 keyConsumer.accept(entryKey);
             }
