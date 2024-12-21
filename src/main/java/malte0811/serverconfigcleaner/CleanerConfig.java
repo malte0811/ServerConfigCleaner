@@ -26,7 +26,9 @@ public class CleanerConfig {
     // For hopefully obvious reasons, the list of config values these hashes correspond to is not public (there is an
     // internal list). All of them are caught by the default patterns.
     public static final List<Integer> KNOWN_PROBLEMATIC_HASHES = ImmutableList.of(
-        358182576, -1793003039, -310303834, 1537110965, -691466550, -1263699746, -1205332082, -222630614, 181611141
+        358182576, -1793003039, -310303834, 1537110965, -691466550, -1263699746, -1205332082, -222630614,
+        181611141, -1572575557, -89876352, -2128627534, 1545840594, -861406585,
+        855640258, 856030949, -263758795, 1951324479
     );
     private static final List<String> DEFAULT_SUSPICIOUS_PATTERNS = ImmutableList.of(
         "host", "username", "password", "secret", "token", "apikey", "webhook", "jdbc", "sql", "redis", "mongodb", "database"
