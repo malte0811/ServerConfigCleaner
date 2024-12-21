@@ -9,16 +9,23 @@ public class CleanerConfig {
     public static final ForgeConfigSpec CONFIG_SPEC;
 
     private static final List<String> DEFAULT_FALSE_POSITIVES = ImmutableList.of(
-            "computercraft:http.proxy.host",
             "rftoolsbuilder:scanner.locatorUsePerTickHostile",
             "tombstone:player_death.ghostly_shape_duration",
             // mahoutsukai for some reason puts essentially all config values in "secret", even though none of them are
             // secret in any sense
-            "mahoutsukai:secret.*"
+            "mahoutsukai:secret.*",
+            "create:logistics.seatHostileMobs",
+            "tombstone:general.ghostly_shape_duration",
+            "skinnedlanterns:lanterns.ghost_soul_lantern",
+            "skinnedlanterns:lanterns.ghost_lantern",
+            "goblinsanddungeons:general.Super Secret Settings",
+            "moblassos:hostile_damage_rate",
+            "moblassos:hostile_mob_health",
+            "moblassos:hostile_lasso_time"
     );
-    private static final List<Integer> KNOWN_PROBLEMATIC_HASHES = ImmutableList.of(358182576);
+    private static final List<Integer> KNOWN_PROBLEMATIC_HASHES = ImmutableList.of(358182576, -1793003039, -310303834, 1537110965, -691466550, -1263699746, -1205332082);
     private static final List<String> DEFAULT_SUSPICIOUS_PATTERNS = ImmutableList.of(
-        "host", "username", "password", "secret", "token", "apikey", "webhook", "jdbc", "sql", "redis", "mongodb"
+        "host", "username", "password", "secret", "token", "apikey", "webhook", "jdbc", "sql", "redis", "mongodb", "database"
     );
 
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> BAD_CONFIG_PATTERNS;
