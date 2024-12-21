@@ -11,7 +11,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 
-version = "$version_minecraft-1.0"
+version = "1.0-$version_minecraft-mcf"
 group = "malte0811.$modid"
 archivesBaseName = 'ServerConfigCleaner'
 
