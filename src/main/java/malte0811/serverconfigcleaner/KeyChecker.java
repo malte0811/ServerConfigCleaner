@@ -16,7 +16,12 @@ public class KeyChecker {
     public KeyChecker() {
         problematicKeyParts = new ArrayList<>(CleanerConfig.BAD_CONFIG_PATTERNS.get());
         nonSyncedKeys = ConfigKeySet.buildSetFromConfig(CleanerConfig.TRUE_PROBLEMATIC_CONFIGS);
-        nonSyncedHashes = new HashSet<>(CleanerConfig.PROBLEMATIC_HASHES.get());
+        List<? extends Integer> configuredHashes = CleanerConfig.PROBLEMATIC_HASHES.get();
+        nonSyncedHashes = new HashSet<>(
+            // Use internal list by default so we can add hashes on updates. Use the list in the config if the user
+            // added any values.
+            configuredHashes.isEmpty() ? CleanerConfig.KNOWN_PROBLEMATIC_HASHES : configuredHashes
+        );
         falsePositives = ConfigKeySet.buildSetFromConfig(CleanerConfig.FALSE_POSITIVES);
     }
 
