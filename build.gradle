@@ -6,7 +6,7 @@ plugins {
     id 'net.neoforged.gradle.userdev' version "$version_neogradle"
 }
 
-version = "$version_minecraft-1.0"
+version = "1.0-$version_minecraft-neo"
 group = "malte0811.$modid"
 archivesBaseName = 'ServerConfigCleaner'
 
