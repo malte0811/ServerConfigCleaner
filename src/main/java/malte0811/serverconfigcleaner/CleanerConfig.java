@@ -25,7 +25,7 @@ public class CleanerConfig {
     );
     // For hopefully obvious reasons, the list of config values these hashes correspond to is not public (there is an
     // internal list). All of them are caught by the default patterns.
-    private static final List<Integer> KNOWN_PROBLEMATIC_HASHES = ImmutableList.of(
+    public static final List<Integer> KNOWN_PROBLEMATIC_HASHES = ImmutableList.of(
         358182576, -1793003039, -310303834, 1537110965, -691466550, -1263699746, -1205332082, -222630614, 181611141
     );
     private static final List<String> DEFAULT_SUSPICIOUS_PATTERNS = ImmutableList.of(
@@ -57,7 +57,7 @@ public class CleanerConfig {
                         "A somewhat obfuscated list of known options containing secrets.",
                         "Ignore unless you know what you are doing."
                 )
-                .defineListAllowEmpty("doNotSyncHashes", KNOWN_PROBLEMATIC_HASHES, obj -> true);
+                .defineListAllowEmpty("doNotSyncHashes", ImmutableList.of(), obj -> true);
 
         CONFIG_SPEC = builder.build();
     }
