@@ -21,7 +21,10 @@ public class CleanerConfig {
             "goblinsanddungeons:general.Super Secret Settings",
             "moblassos:hostile_damage_rate",
             "moblassos:hostile_mob_health",
-            "moblassos:hostile_lasso_time"
+            "moblassos:hostile_lasso_time",
+            "notenoughwands:general.wandsettings.capturing_wand.allowHostile",
+            "notenoughwands:general.wandsettings.freezing_wand.freezeAllowHostile",
+            "notenoughwands:general.wandsettings.potion_wand.potionAllowHostile"
     );
     // For hopefully obvious reasons, the list of config values these hashes correspond to is not public (there is an
     // internal list). All of them are caught by the default patterns.
